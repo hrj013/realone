@@ -10,13 +10,13 @@ from carbon import calculate_transport_carbon
 
 st.set_page_config(
     page_title="CARBON RIDER",
-    page_icon="🌱",
+    page_icon="🏍️",
     layout="centered"
 )
 
 
 # =========================================================
-# 게임 데이터
+# 게임 상태
 # =========================================================
 
 if "xp" not in st.session_state:
@@ -28,254 +28,93 @@ if "coins" not in st.session_state:
 if "previous_carbon" not in st.session_state:
     st.session_state.previous_carbon = None
 
+if "player_x" not in st.session_state:
+    st.session_state.player_x = 0
 
-# =========================================================
-# 이미지 경로
-# =========================================================
+if "player_y" not in st.session_state:
+    st.session_state.player_y = 2
 
-RIDER_IMAGE = "assets/rider.png"
-
-LOCKED_BIKE_IMAGE = "assets/autumn_bike_locked.png"
-
-BIKE_IMAGE = "assets/autumn_bike.png"
+if "energy" not in st.session_state:
+    st.session_state.energy = 0
 
 
 # =========================================================
 # CSS
 # =========================================================
 
-st.markdown(
-    """
-    <style>
+st.markdown("""
+<style>
 
-    /* =========================================
-       전체 화면
-       ========================================= */
+.stApp {
+    background-color: #101018;
+    color: white;
+}
 
-    .stApp {
-        background-color: #101018;
-        color: white;
-    }
+h1, h2, h3 {
+    font-family: monospace;
+}
 
+.game-title {
+    text-align: center;
+    font-size: 36px;
+    font-weight: bold;
+    letter-spacing: 5px;
+}
 
-    /* =========================================
-       기본 글꼴
-       ========================================= */
+.game-subtitle {
+    text-align: center;
+    color: #777788;
+    font-family: monospace;
+}
 
-    h1,
-    h2,
-    h3,
-    p,
-    div,
-    span {
-        font-family: monospace;
-    }
+.map {
+    background-color: #171724;
 
+    border: 4px solid white;
 
-    /* =========================================
-       제목
-       ========================================= */
+    padding: 15px;
 
-    .game-title {
-        text-align: center;
+    font-family: monospace;
 
-        font-size: 38px;
+    font-size: 28px;
 
-        font-weight: bold;
+    line-height: 1.5;
 
-        letter-spacing: 5px;
+    text-align: center;
 
-        color: white;
+    box-shadow:
+        6px 6px 0px #000000;
 
-        margin-top: 10px;
-    }
+    margin-top: 20px;
 
+    margin-bottom: 20px;
+}
 
-    .game-subtitle {
-        text-align: center;
+.dialogue {
+    background-color: #08080d;
 
-        color: #777788;
+    border: 3px solid white;
 
-        font-family: monospace;
+    padding: 18px;
 
-        font-size: 13px;
+    font-family: monospace;
 
-        letter-spacing: 2px;
-    }
+    line-height: 1.7;
+}
 
+.energy {
+    color: #6cff8a;
 
-    /* =========================================
-       캐릭터 이름
-       ========================================= */
+    font-weight: bold;
 
-    .character-name {
-        text-align: center;
+}
 
-        color: white;
-
-        font-size: 18px;
-
-        font-weight: bold;
-
-        letter-spacing: 3px;
-
-        margin-top: 5px;
-
-        margin-bottom: 20px;
-    }
-
-
-    /* =========================================
-       대화창
-       ========================================= */
-
-    .dialogue {
-        background-color: #08080d;
-
-        border: 3px solid white;
-
-        padding: 20px;
-
-        font-family: monospace;
-
-        line-height: 1.8;
-
-        margin-top: 15px;
-
-        margin-bottom: 20px;
-
-        box-shadow: 5px 5px 0px #000000;
-    }
-
-
-    .speaker {
-        color: #6cff8a;
-
-        font-weight: bold;
-
-        margin-bottom: 10px;
-    }
-
-
-    /* =========================================
-       시즌
-       ========================================= */
-
-    .season {
-        text-align: center;
-
-        color: #ffcf5c;
-
-        font-size: 18px;
-
-        font-weight: bold;
-
-        letter-spacing: 2px;
-
-        margin-top: 15px;
-
-        margin-bottom: 5px;
-    }
-
-
-    .season-info {
-        text-align: center;
-
-        color: #777788;
-
-        font-size: 12px;
-
-        margin-bottom: 20px;
-    }
-
-
-    /* =========================================
-       탄소량
-       ========================================= */
-
-    .carbon-box {
-        background-color: #08080d;
-
-        border: 3px solid #6cff8a;
-
-        padding: 20px;
-
-        text-align: center;
-
-        margin-top: 15px;
-
-        margin-bottom: 20px;
-    }
-
-
-    .carbon-label {
-        color: #777788;
-
-        font-size: 12px;
-
-        letter-spacing: 2px;
-    }
-
-
-    .carbon-number {
-        color: #6cff8a;
-
-        font-size: 40px;
-
-        font-weight: bold;
-
-        margin: 5px;
-    }
-
-
-    /* =========================================
-       버튼
-       ========================================= */
-
-    .stButton > button {
-
-        background-color: #151522;
-
-        color: white;
-
-        border: 2px solid white;
-
-        border-radius: 0px;
-
-        font-family: monospace;
-
-        font-weight: bold;
-
-        min-height: 45px;
-
-    }
-
-
-    .stButton > button:hover {
-
-        background-color: white;
-
-        color: #101018;
-
-    }
-
-
-    /* =========================================
-       구분선
-       ========================================= */
-
-    hr {
-        border-color: #333344;
-    }
-
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+</style>
+""", unsafe_allow_html=True)
 
 
 # =========================================================
-# 타이틀
+# 제목
 # =========================================================
 
 st.markdown(
@@ -285,83 +124,70 @@ st.markdown(
 
 st.markdown(
     '<div class="game-subtitle">'
-    'A JOURNEY TO A LOWER-CARBON WORLD'
+    'SEASON 01 — AUTUMN TRAIL'
     '</div>',
     unsafe_allow_html=True
 )
 
 
 # =========================================================
-# 시즌
+# 맵
 # =========================================================
+
+MAP_WIDTH = 7
+MAP_HEIGHT = 5
+
+
+# 맵 생성
+
+game_map = []
+
+for y in range(MAP_HEIGHT):
+
+    row = []
+
+    for x in range(MAP_WIDTH):
+
+        # 플레이어
+        if (
+            x == st.session_state.player_x
+            and y == st.session_state.player_y
+        ):
+
+            row.append("🏍️")
+
+        # 목적지
+        elif x == 6 and y == 2:
+
+            row.append("🏁")
+
+        # 나무
+        elif (x + y) % 5 == 0:
+
+            row.append("🌲")
+
+        # 길
+        else:
+
+            row.append("▫️")
+
+    game_map.append(row)
+
+
+# 맵 출력
+
+map_text = ""
+
+for row in game_map:
+
+    map_text += " ".join(row)
+    map_text += "<br>"
+
 
 st.markdown(
-    '<div class="season">'
-    '🍂 SEASON 01 — AUTUMN TRAIL'
-    '</div>',
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    '<div class="season-info">'
-    'SEASON 01'
-    '</div>',
-    unsafe_allow_html=True
-)
-
-
-# =========================================================
-# 캐릭터
-# =========================================================
-
-if os.path.exists(RIDER_IMAGE):
-
-    st.image(
-        RIDER_IMAGE,
-        width=180
-    )
-
-else:
-
-    st.markdown(
-        """
-        <div style="
-            text-align:center;
-            font-size:80px;
-            padding:20px;
-        ">
-            🏍️
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-
-st.markdown(
-    '<div class="character-name">'
-    'LEAF RIDER'
-    '</div>',
-    unsafe_allow_html=True
-)
-
-
-# =========================================================
-# 대화창
-# =========================================================
-
-st.markdown(
-    """
-    <div class="dialogue">
-
-        <div class="speaker">
-            ???
-        </div>
-
-        오늘도 길을 떠날 시간이야.<br>
-        <br>
-        네가 선택하는 이동이<br>
-        이 세계의 내일을 바꾼다.
-
+    f"""
+    <div class="map">
+        {map_text}
     </div>
     """,
     unsafe_allow_html=True
@@ -369,7 +195,7 @@ st.markdown(
 
 
 # =========================================================
-# 플레이어 정보
+# 상태
 # =========================================================
 
 col1, col2, col3 = st.columns(3)
@@ -399,65 +225,60 @@ with col3:
     )
 
 
-st.divider()
-
-
 # =========================================================
-# 오늘의 이동
+# 에너지
 # =========================================================
 
-st.header("🚦 TODAY'S JOURNEY")
+st.subheader("⚡ RIDER ENERGY")
 
-st.caption(
-    "오늘 하루 동안 이용한 교통수단의 시간을 입력하세요."
+st.progress(
+    min(st.session_state.energy / 10, 1.0)
+)
+
+st.write(
+    f"Energy: {st.session_state.energy} / 10"
 )
 
 
-# 자동차
+# =========================================================
+# 탄소 계산
+# =========================================================
+
+st.divider()
+
+st.header("🌱 TODAY'S JOURNEY")
+
 
 car_minutes = st.slider(
     "🚗 자동차",
-    min_value=0,
-    max_value=180,
-    value=30,
-    step=5,
-    format="%d분"
+    0,
+    180,
+    30,
+    5
 )
-
-
-# 버스
 
 bus_minutes = st.slider(
     "🚌 버스",
-    min_value=0,
-    max_value=180,
-    value=20,
-    step=5,
-    format="%d분"
+    0,
+    180,
+    20,
+    5
 )
-
-
-# 지하철
 
 subway_minutes = st.slider(
     "🚇 지하철",
-    min_value=0,
-    max_value=180,
-    value=30,
-    step=5,
-    format="%d분"
+    0,
+    180,
+    30,
+    5
 )
-
-
-# 도보
 
 walking_minutes = st.slider(
     "🚶 도보",
-    min_value=0,
-    max_value=180,
-    value=20,
-    step=5,
-    format="%d분"
+    0,
+    180,
+    20,
+    5
 )
 
 
@@ -472,39 +293,9 @@ carbon = calculate_transport_carbon(
 )
 
 
-# =========================================================
-# 탄소 결과
-# =========================================================
-
-st.divider()
-
-
-st.markdown(
-    """
-    <div class="carbon-box">
-
-        <div class="carbon-label">
-            TODAY'S CARBON
-        </div>
-
-    """,
-    unsafe_allow_html=True
-)
-
-
-st.markdown(
-    f"""
-        <div class="carbon-number">
-            {carbon:.2f}
-        </div>
-
-        <div class="carbon-label">
-            kg CO₂e
-        </div>
-
-    </div>
-    """,
-    unsafe_allow_html=True
+st.metric(
+    "TODAY'S CARBON",
+    f"{carbon:.2f} kg CO₂e"
 )
 
 
@@ -513,13 +304,9 @@ st.markdown(
 # =========================================================
 
 if st.button(
-    "▶ JOURNEY COMPLETE",
+    "🌱 COMPLETE JOURNEY",
     use_container_width=True
 ):
-
-    # -----------------------------------------------------
-    # 첫 번째 기록
-    # -----------------------------------------------------
 
     if st.session_state.previous_carbon is None:
 
@@ -529,16 +316,14 @@ if st.button(
 
         st.session_state.coins += 10
 
+        st.session_state.energy += 3
+
         st.success(
             "첫 번째 여정 완료!\n\n"
+            "⚡ +3 ENERGY\n"
             "⭐ +10 EXP\n"
             "🪙 +10 COIN"
         )
-
-
-    # -----------------------------------------------------
-    # 이전 기록과 비교
-    # -----------------------------------------------------
 
     else:
 
@@ -547,11 +332,12 @@ if st.button(
         reduction = previous - carbon
 
 
-        # -------------------------------------------------
-        # 탄소 감축
-        # -------------------------------------------------
-
         if reduction > 0:
+
+            energy = max(
+                1,
+                int(reduction * 5)
+            )
 
             xp = max(
                 10,
@@ -559,10 +345,12 @@ if st.button(
             )
 
             coins = max(
-                10,
-                int(reduction * 25)
+                5,
+                int(reduction * 20)
             )
 
+
+            st.session_state.energy += energy
 
             st.session_state.xp += xp
 
@@ -571,125 +359,137 @@ if st.button(
             st.session_state.previous_carbon = carbon
 
 
-            st.balloons()
-
-
             st.success(
-                f"🌱 탄소 감축 성공!\n\n"
-                f"이전보다 {reduction:.2f} kg 감소했습니다.\n\n"
+                f"🌱 CARBON REDUCED!\n\n"
+                f"{reduction:.2f} kg 감소\n\n"
+                f"⚡ +{energy} ENERGY\n"
                 f"⭐ +{xp} EXP\n"
                 f"🪙 +{coins} COIN"
             )
-
-
-        # -------------------------------------------------
-        # 탄소 증가 또는 동일
-        # -------------------------------------------------
 
         else:
 
             st.session_state.previous_carbon = carbon
 
             st.info(
-                "오늘의 여정이 끝났습니다.\n\n"
-                "내일은 조금 더 줄여볼까요?"
+                "탄소 배출량이 줄지 않았습니다."
             )
 
 
 # =========================================================
-# 다음 차량
+# 이동 버튼
 # =========================================================
 
 st.divider()
 
-st.header("🎁 NEXT VEHICLE")
+st.header("🏍️ RIDE")
+
+
+# 위
+
+if st.button(
+    "⬆️",
+    use_container_width=True
+):
+
+    if st.session_state.energy > 0:
+
+        if st.session_state.player_y > 0:
+
+            st.session_state.player_y -= 1
+
+            st.session_state.energy -= 1
+
+            st.rerun()
+
+
+# 좌우
+
+col1, col2, col3 = st.columns(3)
+
+
+with col1:
+
+    if st.button(
+        "⬅️",
+        use_container_width=True
+    ):
+
+        if st.session_state.energy > 0:
+
+            if st.session_state.player_x > 0:
+
+                st.session_state.player_x -= 1
+
+                st.session_state.energy -= 1
+
+                st.rerun()
+
+
+with col2:
+
+    if st.button(
+        "⏺️",
+        use_container_width=True
+    ):
+
+        st.rerun()
+
+
+with col3:
+
+    if st.button(
+        "➡️",
+        use_container_width=True
+    ):
+
+        if st.session_state.energy > 0:
+
+            if st.session_state.player_x < MAP_WIDTH - 1:
+
+                st.session_state.player_x += 1
+
+                st.session_state.energy -= 1
+
+                st.rerun()
+
+
+# 아래
+
+if st.button(
+    "⬇️",
+    use_container_width=True
+):
+
+    if st.session_state.energy > 0:
+
+        if st.session_state.player_y < MAP_HEIGHT - 1:
+
+            st.session_state.player_y += 1
+
+            st.session_state.energy -= 1
+
+            st.rerun()
 
 
 # =========================================================
-# 차량 잠금 상태
+# 목적지 도착
 # =========================================================
 
-if st.session_state.xp < 100:
+if (
+    st.session_state.player_x == 6
+    and st.session_state.player_y == 2
+):
 
-    # 이미지가 존재하면 표시
-    if os.path.exists(LOCKED_BIKE_IMAGE):
-
-        st.image(
-            LOCKED_BIKE_IMAGE,
-            width=220
-        )
-
-    # 이미지가 없으면 임시 이모지
-    else:
-
-        st.markdown(
-            """
-            <div style="
-                text-align:center;
-                font-size:70px;
-                padding:20px;
-            ">
-                🔒 🏍️
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-
-    st.write(
-        "🔒 ???"
-    )
-
-
-    # 경험치 진행도
-
-    progress = min(
-        st.session_state.xp / 100,
-        1.0
-    )
-
-
-    st.progress(
-        progress
-    )
-
-
-    st.caption(
-        f"{st.session_state.xp} / 100 EXP"
-    )
-
-
-# =========================================================
-# 차량 해금
-# =========================================================
-
-else:
-
-    # 이미지가 존재하면 표시
-    if os.path.exists(BIKE_IMAGE):
-
-        st.image(
-            BIKE_IMAGE,
-            width=220
-        )
-
-    # 이미지가 없으면 임시 이모지
-    else:
-
-        st.markdown(
-            """
-            <div style="
-                text-align:center;
-                font-size:70px;
-                padding:20px;
-            ">
-                🍂 🏍️
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
+    st.balloons()
 
     st.success(
-        "🍂 AUTUMN BIKE UNLOCKED!"
+        "🏁 DESTINATION REACHED!\n\n"
+        "🌱 GREEN JOURNEY COMPLETE!\n\n"
+        "+50 EXP\n"
+        "+100 COIN"
     )
+
+    st.session_state.xp += 50
+
+    st.session_state.coins += 100
